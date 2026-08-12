@@ -1,29 +1,46 @@
-#pragma once
-
+#include "EntityManager.h"
 #include "Entity.h"
 
-#include <vector>
-#include <map>
-#include <string>
 #include <memory>
+#include <string>
+#include <vector>
 
-typedef std::vector<std::shared_ptr<Entity>> EntityVec;
-
-class EntityManager
+void EntityManager::update()
 {
-	EntityVec m_entities; // all entities
-	EntityVec m_entititesToAdd; // entities to add next update
-	std::map<std::string, EntityVec> m_entityMap; // map from entity tag to vector
-	size_t m_totalEntities = 0; // total entities created
+	for (auto& e : m_entititesToAdd)
+	{
+		m_entities.emplace_back(e);
+		m_entityMap[e->getTag()].emplace_back(e);
+	}
+	m_entititesToAdd.clear();
 
-	// helper function to avoid repeated code
-	void removeDeadEntities(EntityVec& entities);
+	removeDeadEntities(m_entities);
 
-public:
-	EntityManager() = default;
+	for (auto& [_, entityVec] : m_entityMap)
+	{
+		removeDeadEntities(entityVec);
+	}
+}
 
-	void update();
-	std::shared_ptr<Entity> addEntity(const std::string& tag);
-	EntityVec& getEntities();
-	EntityVec& getEntities(const std::string& entityGroup);
-};
+std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
+{
+	auto newEntity = std::shared_ptr<Entity>(new Entity(m_totalEntities++, tag));
+	m_entititesToAdd.push_back(newEntity);
+	return newEntity;
+}
+
+EntityVec& EntityManager::getEntities()
+{
+	return m_entities;
+}
+
+EntityVec& EntityManager::getEntities(const std::string& entityGroup)
+{
+	return m_entityMap[entityGroup];
+}
+
+void EntityManager::removeDeadEntities(EntityVec& entities)
+{
+	EntityVec::iterator newEnd = std::remove_if(entities.begin(), entities.end(), [](const std::shared_ptr<Entity>& e) { return !e->isActive(); });
+	entities.erase(newEnd, entities.end());
+}
