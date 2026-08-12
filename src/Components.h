@@ -7,13 +7,14 @@
 class CTransform
 {
 public:
-	Vec2 pos = { 0.0, 0.0 };
-	Vec2 velocity = { 0.0, 0.0 };
-	float angle = 0;
+	Vec2 pos = { 0.0f, 0.0f };
+	Vec2 prevPos = { 0.0f, 0.0f };
+	Vec2 velocity = { 0.0f, 0.0f };
+	float angle = 0.0f;
 
-	CTransform(const Vec2& p) : pos(p) {}
+	CTransform(Vec2 p) : pos(p) {}
 
-	CTransform(const Vec2& p, const Vec2& v, float a)
+	CTransform(Vec2 p, Vec2 v, float a)
 		: pos(p), velocity(v), angle(a) {}
 };
 
@@ -29,7 +30,7 @@ public:
 class CBoundingCircle
 {
 public:
-	float radius = 0;
+	float radius = 0.0f;
 	
 	CBoundingCircle(float r)
 		: radius(r) {}
