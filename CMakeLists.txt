@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.28)
 project(aabb_collision LANGUAGES CXX)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(FetchContent)
 FetchContent_Declare(SFML
@@ -21,7 +23,8 @@ add_executable(aabb_collision
     src/Entity.cpp
     src/EntityManager.h
     src/EntityManager.cpp
-)
+    src/Game.h
+    src/Game.cpp)
 
 target_compile_features(aabb_collision PRIVATE cxx_std_17)
 target_link_libraries(aabb_collision PRIVATE SFML::Graphics)
