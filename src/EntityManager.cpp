@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 void EntityManager::update()
 {
@@ -41,6 +42,13 @@ EntityVec& EntityManager::getEntities(const std::string& entityGroup)
 
 void EntityManager::removeDeadEntities(EntityVec& entities)
 {
-	EntityVec::iterator newEnd = std::remove_if(entities.begin(), entities.end(), [](const std::shared_ptr<Entity>& e) { return !e->isActive(); });
+	auto newEnd = std::remove_if(
+		entities.begin(),
+		entities.end(),
+		[](const std::shared_ptr<Entity>& e) {
+			return !e->isActive();
+		}
+	);
+	
 	entities.erase(newEnd, entities.end());
 }
