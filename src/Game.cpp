@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "Vec2.h"
 #include "Components.h"
+#include "Physics.h"
 
 #include <SFML/Graphics.hpp>
 
@@ -40,6 +41,7 @@ void Game::init()
 	m_window.setFramerateLimit(60);
 
 	spawnPlayer();
+	spawnEntities(6);
 	m_running = true;
 }
 
@@ -70,6 +72,42 @@ void Game::spawnPlayer()
 	player->addComponent<CInput>();
 	
 	m_player = player;
+}
+
+void Game::spawnEntity()
+{
+	auto entity = m_entityManager.addEntity("shape");
+
+	float entityRadius = 40.f;
+	int shapePoints = 10;
+	sf::Color fillColor(sf::Color::Transparent);
+	sf::Color outlineColor(sf::Color::Magenta);
+	float thickness = 3.f;
+
+	entity->addComponent<CShape>(entityRadius, shapePoints, fillColor, outlineColor, thickness);
+
+	// spawn entity at a random position within the window
+	float maxPosX = static_cast<float>(m_window.getSize().x - entityRadius);
+	float maxPosY = static_cast<float>(m_window.getSize().y - entityRadius);
+
+	float posX = rng(entityRadius, maxPosX);
+	float posY = rng(entityRadius, maxPosY);
+	
+	// useful when testing against a single entity
+	//Vec2 pos = Vec2(m_window.getSize().x / 2, m_window.getSize().y / 2);
+	
+	entity->addComponent<CTransform>(Vec2{posX, posY});
+
+	float boxSize = entityRadius * 2;
+	entity->addComponent<CBoundingBox>(Vec2(boxSize, boxSize));
+}
+
+void Game::spawnEntities(size_t max)
+{
+	for (size_t i = 0; i < max; i++)
+	{
+		spawnEntity();
+	}
 }
 
 void Game::sRender()
@@ -144,6 +182,49 @@ void Game::sCollision()
 		)
 	{
 		playerTransform.pos = playerTransform.prevPos;
+	}
+
+	// player x entity collision
+	for (const auto& e : m_entityManager.getEntities("shape"))
+	{
+		auto& pTransform = m_player->getComponent<CTransform>().value();
+		auto& eTransform = e->getComponent<CTransform>().value();
+
+		auto overlap = Physics::getOvelap(e, m_player);
+		
+		//! currently, using previous overlap does not give the same result as overlap. the player phases in and out of an entity when they hold down the movement key in the same direction after collision is detected
+		
+		// no actual overlap
+		if (overlap.x <= 0 || overlap.y <= 0) continue;
+
+		// vertical collision
+		if (overlap.x > overlap.y)
+		{
+			if (pTransform.pos.y < eTransform.pos.y)
+			{
+				// top side collision, push player up
+				pTransform.pos.y -= overlap.y;
+			}
+			if (pTransform.pos.y > eTransform.pos.y)
+			{
+				// bottom side collision, push player down
+				pTransform.pos.y += overlap.y;
+			}
+		}
+		// horizontal collision
+		if (overlap.x < overlap.y)
+		{
+			if (pTransform.pos.x < eTransform.pos.x)
+			{
+				// left side collision, push player left
+				pTransform.pos.x -= overlap.x;
+			}
+			if (pTransform.pos.x > eTransform.pos.x)
+			{
+				// right side collision, push player right
+				pTransform.pos.x += overlap.x;
+			}
+		}
 	}
 }
 

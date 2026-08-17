@@ -23,6 +23,9 @@ class Game
 	void update();
 	void quit();
 	void spawnPlayer();
+	void spawnEntity();
+	void spawnEntities(size_t max);
+
 	
 	void sRender();
 	void sPlayerInput();

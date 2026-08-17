@@ -23,6 +23,8 @@ add_executable(aabb_collision
     src/Entity.cpp
     src/EntityManager.h
     src/EntityManager.cpp
+    src/Physics.cpp
+    src/Physics.h
     src/Game.h
     src/Game.cpp)
 
