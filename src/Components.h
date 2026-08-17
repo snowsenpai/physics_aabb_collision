@@ -12,19 +12,22 @@ public:
 	Vec2 velocity = { 0.0f, 0.0f };
 	float angle = 0.0f;
 
-	CTransform(Vec2 p) : pos(p) {}
+	CTransform(Vec2 p) : pos(p), prevPos(p) {}
 
 	CTransform(Vec2 p, Vec2 v, float a)
-		: pos(p), velocity(v), angle(a) {}
+		: pos(p), prevPos(p), velocity(v), angle(a) {}
 };
 
 class CBoundingBox
 {
 public:
 	Vec2 size = { 0.0f, 0.0f };
+	Vec2 halfSize = { 0.0f, 0.0f };
 
 	CBoundingBox(Vec2 size)
-		: size(size) {}
+		: size(size)
+		, halfSize(size.x / 2.f, size.y / 2.f)
+	{}
 };
 
 class CBoundingCircle
